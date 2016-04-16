@@ -30,6 +30,14 @@ public class CharacterControllerLogic : MonoBehaviour
 
     #region Properties (public)
 
+    public Animator Animator
+    {
+        get
+        {
+            return this.animator;
+        }
+    }
+
     #endregion
 
     #region Unity event functions
@@ -71,7 +79,7 @@ public class CharacterControllerLogic : MonoBehaviour
     void FixedUpdate()
     {
         //Rotate the character's model if stick is tilted right or left, but only if character is moving in that direction
-        if(IsInLocomotion() && ((direction >= 0 && horizontal >= 0) || (direction < 0 && horizontal < 0)))
+        if(IsInLocomotion() && ((direction >= 0 && horizontal >= 0) || (direction < 0 && horizontal < 0))) //Improve this to work if character moves downward as well
         {
             Vector3 rotationAmount = Vector3.Lerp(Vector3.zero, new Vector3(0f, rotationDegreePerSecond * (horizontal < 0f ? -1f : 1f), 0f), Mathf.Abs(horizontal));
             Quaternion deltaRotation = Quaternion.Euler(rotationAmount * Time.deltaTime);
