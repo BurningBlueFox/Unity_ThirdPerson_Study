@@ -14,6 +14,7 @@ struct CameraPosition
     public Vector3 Position { get { return position; } set { position = value; } }
     public Transform XForm { get { return xForm; } set { xForm = value; } }
 
+
     public void Init(string camName, Vector3 pos, Transform transform, Transform parent)
     {
         position = pos;
@@ -49,6 +50,12 @@ public class ThirdPersonCamera : MonoBehaviour
     [SerializeField]
     private Vector2 firstPersonXAxisClamp = new Vector2(-30.0f, 40.0f);
 
+
+    public GameObject rig;
+    public float deltaMouseX;
+    public float oldMouseX;
+    public float deltaMouseY;
+    public float oldMouseY;
     //Smoothing and damping
     private Vector3 velocityCamSmooth = Vector3.zero;
     [SerializeField]
@@ -81,6 +88,8 @@ public class ThirdPersonCamera : MonoBehaviour
     #region Unity event functions
     void Start()
     {
+        oldMouseX = 0f;
+        oldMouseY = 0f;
         follow = GameObject.FindWithTag("Beta").GetComponent<CharacterControllerLogic>();
 
         followXForm = GameObject.FindWithTag("Player").transform;
@@ -104,9 +113,12 @@ public class ThirdPersonCamera : MonoBehaviour
 
     }
 
-    void Update()
+    void FixedUpdate()
     {
-
+        deltaMouseX = Input.mousePosition.x - oldMouseX;
+        oldMouseX = Input.mousePosition.x;
+        deltaMouseY = Input.mousePosition.y - oldMouseY;
+        oldMouseY = Input.mousePosition.y;
     }
 
     void OnDrawGizmos()
@@ -116,6 +128,8 @@ public class ThirdPersonCamera : MonoBehaviour
 
     void LateUpdate()
     {
+        rig.transform.Rotate(0, deltaMouseX * 0.3f, 0, Space.Self);
+       // rig.transform.Rotate(deltaMouseY * 0.3f, deltaMouseX * 0.3f, 0, Space.Self);
         //Pulls values from controller / keyboard
         float rightX = Input.GetAxis("RightStickX");
         float rightY = Input.GetAxis("RightStickY");
@@ -165,6 +179,11 @@ public class ThirdPersonCamera : MonoBehaviour
                 lookDir = characterOffset - this.transform.position;
                 lookDir.y = 0;
                 lookDir.Normalize();
+                Quaternion q =  Quaternion.AngleAxis(30f, lookDir);
+                Vector3 angle = q.ToEulerAngles();
+                angle.y = 0;
+                angle.Normalize();
+                Debug.DrawRay(this.transform.position, angle, Color.yellow);
                 Debug.DrawRay(this.transform.position, lookDir, Color.green);
 
                 targetPosition = characterOffset + followXForm.up * distanceUp - lookDir * distanceAway;
